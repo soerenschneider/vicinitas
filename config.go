@@ -5,20 +5,28 @@ import (
 	"crypto/x509"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Probes      []Probe    `yaml:"probes"`
-	Mqtt        MqttConfig `yaml:"mqtt"`
-	MetricsAddr string     `yaml:"metrics_addr"`
+	Pinger      PingerConfig `yaml:"pinger"`
+	Probes      []Probe      `yaml:"probes"`
+	Mqtt        MqttConfig   `yaml:"mqtt"`
+	MetricsAddr string       `yaml:"metrics_addr"`
 }
 
 type Probe struct {
 	Name   string `yaml:"name"`
 	Target string `yaml:"target"`
+}
+
+type PingerConfig struct {
+	UsePrivileged  bool `yaml:"use_privileged"`
+	Count          int  `yaml:"count"`
+	TimeoutSeconds int  `yaml:"timeout_s"`
 }
 
 type MqttConfig struct {
@@ -34,6 +42,11 @@ type MqttConfig struct {
 func defaultConfig() Config {
 	return Config{
 		MetricsAddr: "127.0.0.1:9224",
+		Pinger: PingerConfig{
+			UsePrivileged:  runtime.GOOS == "linux",
+			Count:          3,
+			TimeoutSeconds: 1,
+		},
 	}
 }
 

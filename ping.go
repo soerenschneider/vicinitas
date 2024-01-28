@@ -16,14 +16,15 @@ type PingProbe struct {
 	name   string
 }
 
-func NewPinger(probe Probe) (*PingProbe, error) {
+func NewPinger(conf PingerConfig, probe Probe) (*PingProbe, error) {
 	p, err := probing.NewPinger(probe.Target)
 	if err != nil {
 		return nil, fmt.Errorf("could not build probe for %w", err)
 	}
 
-	p.Count = count
-	p.Timeout = time.Second * 1
+	p.Count = conf.Count
+	p.Timeout = time.Duration(conf.TimeoutSeconds) * time.Second
+	p.SetPrivileged(conf.UsePrivileged)
 
 	ret := &PingProbe{
 		pinger: p,

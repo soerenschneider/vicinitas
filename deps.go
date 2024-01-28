@@ -13,7 +13,7 @@ func buildProbers(conf *Config) (map[string]Prober, error) {
 	ret := map[string]Prober{}
 
 	for _, probe := range conf.Probes {
-		p, err := NewPinger(probe)
+		p, err := NewPinger(conf.Pinger, probe)
 		if err != nil {
 			return nil, err
 		}
