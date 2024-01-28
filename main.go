@@ -19,7 +19,8 @@ var (
 	flagConfigFile            string
 	flagVersion               bool
 	sendNotHomePayloadOnError = true
-	Version                   string
+	BuildVersion              string
+	CommitHash                string
 )
 
 type Prober interface {
@@ -38,7 +39,7 @@ type App struct {
 func main() {
 	parseFlags()
 
-	log.Info().Msgf("Starting version %s", Version)
+	log.Info().Msgf("Starting version %s", BuildVersion)
 	conf, err := ReadConfig(flagConfigFile)
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not read config file")
@@ -55,7 +56,7 @@ func main() {
 	}
 
 	go func() {
-		VersionMetric.WithLabelValues(Version).Set(1)
+		VersionMetric.WithLabelValues(BuildVersion, CommitHash).Set(1)
 		ProcessStartTime.SetToCurrentTime()
 		if err := StartMetricsServer(conf.MetricsAddr); err != nil {
 			log.Fatal().Err(err).Msg("can not start metrics server")
@@ -130,7 +131,7 @@ func parseFlags() {
 	flag.Parse()
 
 	if flagVersion {
-		fmt.Println(Version)
+		fmt.Println(BuildVersion)
 		os.Exit(0)
 	}
 }
